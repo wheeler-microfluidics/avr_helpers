@@ -20,6 +20,7 @@ along with dmf_control_board.  If not, see <http://www.gnu.org/licenses/>.
 import os
 from subprocess import Popen, PIPE, CalledProcessError
 import logging
+import platform
 
 from path_helpers import path
 from serial_device import SerialDevice, ConnectionError
@@ -37,6 +38,8 @@ class AvrDude(SerialDevice):
         p = path(os.path.abspath(os.path.dirname(__file__)))
         if os.name == 'nt':
             self.avrdude = (p / path('avrdude.exe')).abspath()
+        elif platform.architecture()[0] == '64bit':
+            self.avrdude = (p / path('avrdude-x64')).abspath()
         else:
             self.avrdude = (p / path('avrdude')).abspath()
         logger.info("avrdude path=%s" % self.avrdude)
