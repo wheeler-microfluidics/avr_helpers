@@ -5,12 +5,6 @@ from paver.easy import task, needs, path
 from paver.setuputils import setup, find_package_data
 
 import version
-# Add package directory to Python path. This enables the use of `avr_helpers`
-# functions for discovering, e.g., the path to the [AVR][1] tools.
-#
-# [1]: http://en.wikipedia.org/wiki/Atmel_AVR
-sys.path.append(path('.').abspath())
-import avr_helpers
 
 avr_helpers_files = find_package_data(package='avr_helpers',
                                       where='avr_helpers',
