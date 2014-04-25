@@ -34,7 +34,12 @@ class FirmwareError(Exception):
 
 
 class AvrDude(SerialDevice):
-    def __init__(self, port=None):
+    def __init__(self, protocol, microcontroller, baud_rate, conf_path=None,
+                 port=None):
+        self.protocol = protocol
+        self.microcontroller = microcontroller
+        self.baud_rate = baud_rate
+
         p = path(os.path.abspath(os.path.dirname(__file__)))
         if os.name == 'nt':
             self.avrdude = (p / path('avrdude.exe')).abspath()
@@ -45,13 +50,20 @@ class AvrDude(SerialDevice):
         logger.info("avrdude path=%s" % self.avrdude)
         if not self.avrdude.exists():
             raise FirmwareError('avrdude not installed')
-        self.avrconf = (p / path('avrdude.conf')).abspath()
+        if conf_path is None:
+            self.avrconf = (p / path('avrdude.conf')).abspath()
+        else:
+            self.avrconf = path(conf_path).abspath()
         if port:
             self.port = port
             logger.info('avrdude set to connect on port: %s' % self.port)
         else:
-            self.port = self.get_port(115200)
-            logger.info('avrdude successfully connected on port: %s' % self.port)
+            # No serial-port was specified.  Call `SerialDevice.get_port`
+            # method to iterate through each available serial-port until a
+            # connection is successfully made.
+            self.port = self.get_port(baud_rate)
+            logger.info('avrdude successfully connected on port: %s' %
+                        self.port)
 
     def _run_command(self, flags):
         config = dict(avrdude=self.avrdude, avrconf=self.avrconf)
@@ -66,13 +78,13 @@ class AvrDude(SerialDevice):
             raise ConnectionError(stderr)
         return stdout, stderr
 
-    def flash(self, hex_path):
+    def flash(self, hex_path, extra_flags=None):
         hex_path = path(hex_path)
-        flags = ['-c', 'stk500v2', '-b', '115200', '-p', 'atmega2560',
-                    '-P', '%s' % self.port,
-                    '-U', 'flash:w:%s' % hex_path.name,
-                    '-C', '%(avrconf)s']
-
+        flags = ['-c', self.protocol, '-b', str(self.baud_rate), '-p',
+                 self.microcontroller, '-P', '%s' % self.port, '-U',
+                 'flash:w:%s:i' % hex_path.name, '-C', '%(avrconf)s']
+        if extra_flags is not None:
+            flags.extend(extra_flags)
 
         try:
             cwd = os.getcwd()
@@ -83,9 +95,12 @@ class AvrDude(SerialDevice):
         return stdout, stderr
 
     def test_connection(self, port, baud_rate):
-        flags = ['-c', 'stk500v2', '-b', baud_rate, '-p', 'atmega2560',
-                    '-P', port,
-                    '-C', '%(avrconf)s', '-n']
+        '''
+        This method is called by the `get_port` method for each available
+        serial-port on the system until a value of `True` is returned.
+        '''
+        flags = ['-c', self.protocol, '-b', str(baud_rate), '-p',
+                 self.microcontroller, '-P', port, '-C', '%(avrconf)s', '-n']
         try:
             self._run_command(flags)
         except (ConnectionError, CalledProcessError):
