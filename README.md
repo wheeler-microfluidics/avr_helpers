@@ -1,3 +1,4 @@
+![https://ci.appveyor.com/api/projects/status/github/wheeler-microfluidics/avr_helpers?branch=master&svg=true](https://ci.appveyor.com/api/projects/status/github/wheeler-microfluidics/avr_helpers?branch=master&svg=true)
 # `avr_helpers` #
 
 This package provides helper classes for interacting with the [AVR][1]
