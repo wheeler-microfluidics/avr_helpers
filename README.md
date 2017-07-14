@@ -21,13 +21,13 @@ The `avr_helpers.AvrDude` class implements an API for:
     >>> from avr_helpers import AvrDude
     >>> AvrDude?
     Type:            type
-    String form:     <class ‘avr_helpers.AvrDude’>
+    String form:     <class 'avr_helpers.AvrDude'>
     File:            ...
     Init definition: AvrDude(self, protocol, microcontroller, baud_rate, conf_path=None, port=None)
     Docstring:       ...
-    >>> avr_dude = AvrDude(‘arduino’, ‘atmega168’, ‘19200’)
+    >>> avr_dude = AvrDude('arduino', 'atmega168', '19200')
     >>> # `-D` disables erase cycle to speed up programming.
-    >>> stdout, stderr = avr_dude.flash(‘blink.hex’, [‘-D’])
+    >>> stdout, stderr = avr_dude.flash('blink.hex', ['-D'])
     >>> print stdout
 
     >>> print stderr
@@ -37,7 +37,7 @@ The `avr_helpers.AvrDude` class implements an API for:
     Reading | ################################################## | 100% 0.00s
 
     avrdude-x64: Device signature = 0x1e9406
-    avrdude-x64: reading input file “blink.hex”
+    avrdude-x64: reading input file "blink.hex"
     avrdude-x64: writing flash (1056 bytes):
 
     Writing | ################################################## | 100% 0.76s
